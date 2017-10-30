@@ -39,7 +39,7 @@ my $jira = JIRA::REST->new(
     $config->{jira_pass} // $ENV{JIRA_PASS},
 );
 
-COMMIT_MSG \&parse_msg(_transition($msg));
+COMMIT_MSG \&parse_msg(_transition('commit-msg'));
 
 run_hook $0, @ARGV;
 
@@ -65,7 +65,6 @@ sub advance_ticket {
     try {
         my $issue = $jira->GET("/issue/$prefix-$num");
 
-        
         if (not $issue->{id}) {
             _error("No issue found for: [$prefix-$num]");
             return;
@@ -88,22 +87,14 @@ sub _transition {
     my $transition = $config->{transitions}->{$key};
 
     if (not $transition) {
-        _error("No transition found for $key");;
+        _error("No transition found for $key");
         return;
     }
 
     return $transition;   
 }
 
-sub _error {
-    my $err = shift;
-
-    if ($ENV{GIT_HOOK_DEBUG}) {
-        cluck $err;
-    }
-
-    return;
-}
+sub _error { $ENV{GIT_HOOK_DEBUG} ? return cluck shift : return }
 
 exit 0;
 

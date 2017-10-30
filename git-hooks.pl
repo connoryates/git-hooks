@@ -63,7 +63,7 @@ sub advance_ticket {
 
     my $resp;
     try {
-		my $issue = "$prefix-$num";
+        my $issue = "$prefix-$num";
 
         $resp = $jira->POST(
             'issue/' . $issue . '/transitions',

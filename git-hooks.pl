@@ -33,11 +33,11 @@ BEGIN {
     }
 };
 
-my $jira = JIRA::REST->new(
-    $config->{jira_url}  // $ENV{JIRA_URL},
-    $config->{jira_user} // $ENV{JIRA_USER},
-    $config->{jira_pass} // $ENV{JIRA_PASS},
-);
+my $jira = JIRA::REST->new({
+    url      => $config->{jira_url}       // $ENV{JIRA_URL},
+    username => $config->{jira_username}  // $ENV{JIRA_USER},
+    password => $config->{jira_pass}      // $ENV{JIRA_PASS},
+});
 
 COMMIT_MSG \&parse_msg(_transition('commit-msg'));
 

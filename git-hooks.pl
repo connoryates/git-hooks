@@ -63,15 +63,10 @@ sub advance_ticket {
 
     my $resp;
     try {
-        my $issue = $jira->GET("/issue/$prefix-$num");
-
-        if (not $issue->{id}) {
-            _error("No issue found for: [$prefix-$num]");
-            return;
-        }
+		my $issue = "$prefix-$num";
 
         $resp = $jira->POST(
-            'issue/' . $issue->{id} . '/transitions',
+            'issue/' . $issue . '/transitions',
             undef,
             { transition => $transition },
         );

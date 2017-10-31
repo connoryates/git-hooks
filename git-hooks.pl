@@ -44,7 +44,7 @@ PRE_PUSH sub { parse_msg('pre-push') };
 run_hook $0, @ARGV;
 
 sub parse_msg {
-	my $transition = _transition(shift);
+    my $transition = _transition(shift);
 
     return unless $transition;
 
@@ -71,17 +71,17 @@ sub advance_ticket {
     try {
         my $issue = "$prefix-$num";
 
-		print "Updating issue: $issue\n";
+        print "Updating issue: $issue\n";
 
-		my $resp = $jira->POST(
-			'/issue/' . $issue . '/transitions?expand=transitions.fields',
-			undef,
-			{
-				transition => {
-					id => 0 + $transition
-				}
-			}
-		);
+        my $resp = $jira->POST(
+            '/issue/' . $issue . '/transitions?expand=transitions.fields',
+            undef,
+            {
+                transition => {
+                    id => 0 + $transition
+                }
+            }
+       );
     } catch {
         cluck $_;
     };
@@ -105,7 +105,7 @@ sub _parse_log {
     my $out = shift;
 
     my @matches = $out =~ /\[(\w+-\d+)\]/g;
-	my %seen    = ();
+    my %seen    = ();
 
     return [ grep { !$seen{$_}++ } @matches ];
 }

@@ -47,7 +47,7 @@ The hooks rely on [Git::Hooks](http://search.cpan.org/~gnustavo/Git-Hooks-2.1.7/
 # Create the hook
 
 
-And then symlink the script:
+Symlink the script:
 
 ```bash
 $ ln -s your_repo/git-hooks/git-hooks.pl your_repo/git-hooks/.git/hooks/commit-msg

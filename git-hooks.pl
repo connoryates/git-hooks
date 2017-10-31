@@ -39,23 +39,32 @@ my $jira = JIRA::REST->new({
     password => $config->{jira_pass}      // $ENV{JIRA_PASS},
 });
 
-COMMIT_MSG \&parse_msg(_transition('commit-msg'));
+PRE_PUSH sub { parse_msg(@_, _transition('pre-push')) };
 
 run_hook $0, @ARGV;
 
 sub parse_msg {
     my ($git, $msg, $transition) = @_;
 
+    my $branch  = $git->run('git rev-parse --abbrev-ref HEAD');
+    my $out     = $git->run("git log origin/$branch..master");
+
+    my $tickets = _parse_log($out);
+
     return unless $transition;
 
-    my ($prefix, $num) = $msg =~ /\[(\w+)-(\d+)\]/;
+    foreach my $tick (@$tickets) {
+        return unless $transition;
 
-    if (not $prefix and not $num) {
-        _error("No ticket info found");
-        return;
+        my ($prefix, $num) = split '-', $tick;
+
+        if (not $prefix and not $num) {
+            _error("No ticket info found");
+            return;
+        }
+
+        advance_ticket($transition, $prefix, $num);
     }
-
-    advance_ticket($transition, $prefix, $num);
 }
 
 sub advance_ticket {
@@ -87,6 +96,13 @@ sub _transition {
     }
 
     return $transition;   
+}
+
+sub _parse_log {
+    my $out = shift;
+
+    my @matches = $out =~ /(\[\w+-\d+\])/g;
+    return \@matches; 
 }
 
 sub _error { $ENV{GIT_HOOK_DEBUG} ? return cluck shift : return }

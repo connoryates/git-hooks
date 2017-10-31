@@ -51,5 +51,7 @@ $ mkdir -p ~/.git-templates/hooks
 And then symlink the script:
 
 ```bash
-$ ln -s path/to/your/repo/git-hooks/git-hooks.pl ~/.git-templates/hooks/commit-msg
+$ ln -s your_repo/git-hooks/git-hooks.pl your_repo/git-hooks/.git-templates/hooks/commit-msg
 ```
+
+

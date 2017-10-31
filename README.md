@@ -34,7 +34,7 @@ Set ```GIT_HOOK_DEBUG=1``` to enable extra warnings.
 
 # Dependencies
 
-Assuming you have ```cpanm``` installed, ```$ cpanm --installdeps .```
+Assuming you have ```cpanm``` installed: ```$ cpanm --installdeps .```
 
 If not, you'll need to install the dependencies listed in the ```cpanfile``` yourself.
 

@@ -59,5 +59,3 @@ Re-init your repo:
 ```bash
 $ git init
 ```
-
-REMOVE ME

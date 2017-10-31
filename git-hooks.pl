@@ -35,27 +35,25 @@ BEGIN {
 
 my $jira = JIRA::REST->new({
     url      => $config->{jira_url}       // $ENV{JIRA_URL},
-    username => $config->{jira_username}  // $ENV{JIRA_USER},
-    password => $config->{jira_pass}      // $ENV{JIRA_PASS},
+    username => $config->{jira_username}  // $ENV{JIRA_USERNAME},
+    password => $config->{jira_password}  // $ENV{JIRA_PASSWORD},
 });
 
-PRE_PUSH sub { parse_msg(@_, _transition('pre-push')) };
+PRE_PUSH sub { parse_msg('pre-push') };
 
 run_hook $0, @ARGV;
 
 sub parse_msg {
-    my ($git, $msg, $transition) = @_;
-
-    my $branch  = $git->run('git rev-parse --abbrev-ref HEAD');
-    my $out     = $git->run("git log origin/$branch..master");
-
-    my $tickets = _parse_log($out);
+	my $transition = _transition(shift);
 
     return unless $transition;
 
-    foreach my $tick (@$tickets) {
-        return unless $transition;
+    my $out     = `git log origin/master..HEAD`;
+    my $tickets = _parse_log($out);
 
+    return unless @$tickets;
+
+    foreach my $tick (@$tickets) {
         my ($prefix, $num) = split '-', $tick;
 
         if (not $prefix and not $num) {
@@ -70,15 +68,20 @@ sub parse_msg {
 sub advance_ticket {
     my ($transition, $prefix, $num) = @_;
 
-    my $resp;
     try {
         my $issue = "$prefix-$num";
 
-        $resp = $jira->POST(
-            'issue/' . $issue . '/transitions',
-            undef,
-            { transition => $transition },
-        );
+		print "Updating issue: $issue\n";
+
+		my $resp = $jira->POST(
+			'/issue/' . $issue . '/transitions?expand=transitions.fields',
+			undef,
+			{
+				transition => {
+					id => 0 + $transition
+				}
+			}
+		);
     } catch {
         cluck $_;
     };
@@ -101,8 +104,10 @@ sub _transition {
 sub _parse_log {
     my $out = shift;
 
-    my @matches = $out =~ /(\[\w+-\d+\])/g;
-    return \@matches; 
+    my @matches = $out =~ /\[(\w+-\d+)\]/g;
+	my %seen    = ();
+
+    return [ grep { !$seen{$_}++ } @matches ];
 }
 
 sub _error { $ENV{GIT_HOOK_DEBUG} ? return cluck shift : return }

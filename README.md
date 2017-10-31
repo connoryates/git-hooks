@@ -1,31 +1,37 @@
 # git-hooks
 
-Automatically update the status of JIRA tickets on commit.
+Automatically update the status of Jira tickets on push.
 
-Currently, the hook runs on ```commit-msg``` and looks for the ticket information in the commit message in the format:
+Currently, the hook runs on ```pre-push``` and looks for the ticket information in the commit message in the format:
 
 ```
-[prefix-number]
+[prefix-number] -> [QA-2183]
 ```
-
-```[QA-2183]```
 
 ## Example
 
-```$ git commit -m "[DEV-2184] Fix memory leak"```
+```base
+	$ git commit -m "[DEV-2184] Fix memory leak"
+	$ git push
+
+Updating [DEV-2184]
+```
+
+Handles multiple commits. The hook will parse through your git log starting from the last push to master.
+If the ticket is mentioned multiple times, only one request will be sent to Jira.
 
 # Configuration
 
-The hook needs to know your JIRA login info and the ID of the transition each hook should update to.
+The hook needs to know your Jira login info and the transition ID each hook should update to.
 
-You can create a YAML configuration file anywhere you wish in the following format:
+You can create a YAML configuration file anywhere you wish with the following data:
 
 ```yaml
 jira_username: your_jira_username
 jira_password: your_jira_pssword
 jira_url: https://your-jira-link.com
 transitions:
-  commit-msg: 4
+  pre-push: 31
 ````
 
 And then export the path to your config file like so:
@@ -33,6 +39,16 @@ And then export the path to your config file like so:
 ```bash
 $ export GIT_HOOK_CONFIG=/path/to/your/config.yml
 ```
+
+You can also export you login info:
+
+```bash
+$ export JIRA_USERNAME=your_username
+$ export JIRA_PASSWORD=your_password
+$ export JIRA_URL=your_url
+```
+
+Or even leave your credentials in a ```.netrc```, ```~/.jira-identity```, or ```~/.jira``` file.
 
 Set ```GIT_HOOK_DEBUG=1``` to enable extra warnings.
 
@@ -46,12 +62,18 @@ The hooks rely on [Git::Hooks](http://search.cpan.org/~gnustavo/Git-Hooks-2.1.7/
 
 # Create the hook
 
+Assuming you have an initialized git repo, move the script to your .git/hooks dir:
+
+```bash
+$ cp ~/git-hooks/git-hooks.pl ~/your_repo/.git/hooks/git-hooks.pl
+```
 
 Symlink the script:
 
 ```bash
-$ ln -s your_repo/git-hooks/git-hooks.pl your_repo/git-hooks/.git/hooks/commit-msg
-$ chmod a+x your_repo/git-hooks/.git/hooks/commit-msg
+$ ln -s your_repo/.git/git-hooks.pl your_repo/.git/hooks/pre-push
+$ chmod a+x your_repo/.git/git-hooks.pl
+$ chmod a+x your_repo/.git/hooks/pre-push
 ```
 
 Re-init your repo:

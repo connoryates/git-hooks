@@ -46,18 +46,12 @@ The hooks rely on [Git::Hooks](http://search.cpan.org/~gnustavo/Git-Hooks-2.1.7/
 
 # Create the hook
 
-First create a hooks dir in your repo:
-
-```bash
-$ git config --global init.templatedir 'your_repo/.git-templates'
-$ mkdir -p your_repo/.git-templates/hooks
-```
 
 And then symlink the script:
 
 ```bash
-$ ln -s your_repo/git-hooks/git-hooks.pl your_repo/git-hooks/.git-templates/hooks/commit-msg
-$ chmod a + x your_repo/git-hooks/.git-templates/hooks/commit-msg
+$ ln -s your_repo/git-hooks/git-hooks.pl your_repo/git-hooks/.git/hooks/commit-msg
+$ chmod a + x your_repo/git-hooks/.git/hooks/commit-msg
 ```
 
 Re-init your repo:

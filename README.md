@@ -57,9 +57,11 @@ And then symlink the script:
 
 ```bash
 $ ln -s your_repo/git-hooks/git-hooks.pl your_repo/git-hooks/.git-templates/hooks/commit-msg
+$ chmod a + x your_repo/git-hooks/.git-templates/hooks/commit-msg
 ```
 
 Re-init your repo:
+
 ```bash
 $ git init
 ```

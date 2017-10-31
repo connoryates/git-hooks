@@ -4,6 +4,10 @@ Automatically change the status of JIRA tickets on commit.
 
 Currently, the hook runs on ```commit-msg``` and looks for the ticket information in the commit message in the format:
 
+```
+[prefix-number]
+```
+
 ```[QA-2183]```
 
 ## Example

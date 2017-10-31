@@ -13,14 +13,14 @@ BEGIN {
     if (-f $ENV{GIT_HOOK_CONFIG}) {
         my $xs = try {
             require YAML::XS;
-            YAML::XS->import;
+            YAML::XS->import('LoadFile');
             1;
         };
 
         if (not $xs) {
             try {
                 require YAML;
-                YAML->import;
+                YAML->import('LoadFile');
             } catch {
                 confess "No YAML parser found. Please install either YAML::XS (recommended) or YAML";
             };

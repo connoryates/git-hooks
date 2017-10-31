@@ -1,6 +1,6 @@
 # git-hooks
 
-Automatically change the status of JIRA tickets on commit.
+Automatically update the status of JIRA tickets on commit.
 
 Currently, the hook runs on ```commit-msg``` and looks for the ticket information in the commit message in the format:
 
@@ -16,7 +16,7 @@ Currently, the hook runs on ```commit-msg``` and looks for the ticket informatio
 
 # Configuration
 
-The hook needs to know your JIRA login info and the ID of the transition each hook should update.
+The hook needs to know your JIRA login info and the ID of the transition each hook should update to.
 
 You can create a YAML configuration file anywhere you wish in the following format:
 

@@ -199,7 +199,7 @@ sub _dns_or_ip {
 sub _dns_cache {
     my $addr = shift;
 
-    my $cache_dir = $ENV{GIT_HOOK_CACHE} // '/tmp';
+    my $cache_dir = $config->{hook_cache} // $ENV{GIT_HOOK_CACHE} // '/tmp';
 
     if (-d $cache_dir) {
         my $file = "$cache_dir/git-hook-cache";

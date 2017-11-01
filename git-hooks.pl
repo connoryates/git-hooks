@@ -10,6 +10,9 @@ use Git::Hooks;
 use Try::Tiny;
 use Carp qw(cluck confess);
 
+our %cache;
+
+my $osx_kernel = qr/darwin/i;
 my $config;
 
 BEGIN {
@@ -142,16 +145,19 @@ sub _current_branch {
 
 sub _server_ok {
     my $key = shift;
-    my $target  = _target_server($key);
     my $current = _current_server();
+
+    return 1 if $current eq '*';
 
     if (not $current) {
         _error("Cannot find current server");
         return;
     }
 
+    my $target  = _target_server($key);
+
     return 1 if $current eq '*';
-    return $current eq $target;
+    return 1 if grep { $current eq $_ } @$target;
 }
 
 sub _target_server {
@@ -160,70 +166,42 @@ sub _target_server {
 
     if (not $target) {
          _error("No target server found for $key");
-        return;
+        return [];
     }
+	elsif (not @$target) {
+		_error("Invalid data structure found for target server");
+		return [];
+	}
 
     return $target;
 }
 
-sub _current_server {
-    my $socket = try {
-        IO::Socket::INET->new(
-            Proto    => 'udp',
-            PeerAddr => '198.41.0.4', # a.root-servers.net
-            PeerPort => '53', # DNS
-        );
-    };
+sub _ip_addr {
+	if (_is_linux()) {
+		my ($addr) = split ' ', `hostname -I`;
+		return $addr;
+	}
+	elsif (_is_osx()) {
+		return `ipconfig getifaddr en0`;
+	}
+	else {
+		_error('Unsupported OS');
+	}
 
-    return unless blessed $socket;
-
-    my $addr = $socket->sockhost;
-
-    return _looks_like_ipv4($addr) ? _dns_or_ip($addr) : $addr;
+	return;
 }
 
-sub _dns_or_ip {
-    my $addr = shift;
+sub _hostname {
+	$cache{current_server} ||= `hostname`;
 
-    return unless $addr;
-
-    if (my $cached = _dns_cache($addr)) {
-        return $cached;
-    }
-
-    my $name = gethostbyaddr($addr, AF_INET);
-
-    return $name ? _extract_dns($name) : $addr;
+	return $cache{current_server};
 }
 
-sub _dns_cache {
-    my $addr = shift;
-
-    my $cache_dir = $config->{hook_cache} // $ENV{GIT_HOOK_CACHE} // '/tmp';
-
-    if (-d $cache_dir) {
-        my $file = "$cache_dir/git-hook-cache";
-
-        if (-f $file) {
-            my $cache = LoadFile($file);
-
-            return $cache->{$addr} if $cache->{$addr};
-
-            open(my $fh, '>>', $file);
-            print $fh Dump({ $addr => 1 });
-        }
-        else {
-            open(my $fh, '>', $file);
-            print $fh Dump({ $addr => 1 });
-        }
-    }
-
-    return;
-}
-
-sub _extract_dns     { shift =~ /\.ip\.(.+)\.(?:net|com|org|us|eu)/ } 
-sub _looks_like_ipv4 { shift =~ /$RE{net}{IPv4}/ }
-sub _error           { $ENV{GIT_HOOK_DEBUG} ? cluck shift : return }
+sub _is_linux         { `uname -a` =~ /linux/ }
+sub _is_osx           { `uname -a` =~ $osx_kernel }
+sub _current_server   { _looks_like_ipv4(shift) ? _hostname() : _ip_addr() }
+sub _looks_like_ipv4  { shift =~ /$RE{net}{IPv4}/ }
+sub _error            { $ENV{GIT_HOOK_DEBUG} ? cluck shift : return }
 
 exit 0;
 

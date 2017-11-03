@@ -172,7 +172,7 @@ sub _target_server {
     elsif (not @$target) {
         _error("Invalid data structure found for target server");
         return [];
-	}
+    }
 
     return $target;
 }

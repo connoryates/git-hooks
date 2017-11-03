@@ -1,4 +1,5 @@
 #!/usr/bin/env perl
+## vim: ts=4:sw=4:expandtab:shiftround
 use strict;
 use warnings;
 
@@ -168,33 +169,33 @@ sub _target_server {
          _error("No target server found for $key");
         return [];
     }
-	elsif (not @$target) {
-		_error("Invalid data structure found for target server");
-		return [];
+    elsif (not @$target) {
+        _error("Invalid data structure found for target server");
+        return [];
 	}
 
     return $target;
 }
 
 sub _ip_addr {
-	if (_is_linux()) {
-		my ($addr) = split ' ', `hostname -I`;
-		return $addr;
-	}
-	elsif (_is_osx()) {
-		return `ipconfig getifaddr en0`;
-	}
-	else {
-		_error('Unsupported OS');
-	}
+    if (_is_linux()) {
+        my ($addr) = split ' ', `hostname -I`;
+        return $addr;
+    }
+    elsif (_is_osx()) {
+        return `ipconfig getifaddr en0`;
+    }
+    else {
+        _error('Unsupported OS');
+    }
 
-	return;
+    return;
 }
 
 sub _hostname {
-	$cache{current_server} ||= `hostname`;
+    $cache{current_server} ||= `hostname`;
 
-	return $cache{current_server};
+    return $cache{current_server};
 }
 
 sub _is_linux         { `uname -a` =~ /linux/ }

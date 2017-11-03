@@ -5,7 +5,6 @@ use warnings;
 
 use Regexp::Common qw /net/;
 use Scalar::Util 'blessed';
-use IO::Socket::INET;
 use JIRA::REST;
 use Git::Hooks;
 use Try::Tiny;

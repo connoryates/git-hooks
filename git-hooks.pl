@@ -197,8 +197,8 @@ sub _hostname {
     return $cache{current_server};
 }
 
-sub _is_linux         { `uname -a` =~ /linux/ }
-sub _is_osx           { `uname -a` =~ $osx_kernel }
+sub _is_linux         { $^O =~ /linux/ }
+sub _is_osx           { $^O =~ $osx_kernel }
 sub _current_server   { _looks_like_ipv4(shift) ? _hostname() : _ip_addr() }
 sub _looks_like_ipv4  { shift =~ /$RE{net}{IPv4}/ }
 sub _error            { $ENV{GIT_HOOK_DEBUG} ? cluck shift : return }
